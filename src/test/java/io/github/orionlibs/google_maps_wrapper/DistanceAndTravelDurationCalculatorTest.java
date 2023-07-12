@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.orionlibs.google_maps_wrapper.config.ConfigurationService;
-import io.github.orionlibs.google_maps_wrapper.log.ListLogHandler;
 import java.io.IOException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -20,24 +18,14 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 public class DistanceAndTravelDurationCalculatorTest
 {
     private ConfigurationService config;
-    private ListLogHandler listLogHandler;
     private GoogleMapsService googleMapsService;
 
 
     @BeforeEach
     void setUp() throws IOException
     {
-        listLogHandler = new ListLogHandler();
-        GoogleMapsService.addLogHandler(listLogHandler);
         googleMapsService = new GoogleMapsService(new DistanceAndTravelDurationCalculator.FakeDistanceAndTravelDurationCalculator());
         config = googleMapsService.getConfig();
-    }
-
-
-    @AfterEach
-    public void teardown()
-    {
-        GoogleMapsService.removeLogHandler(listLogHandler);
     }
 
 

@@ -1,9 +1,7 @@
 orionlibs.google-maps-wrapper.google.maps.api.key=OrionFakeAPIKey
 orionlibs.google-maps-wrapper.connection.timeout.in.seconds=15
 orionlibs.google-maps-wrapper.connection.retries=2
-
-#DRIVING,
-#  WALKING,
-#  BICYCLING,
-#  TRANSIT,
-#  UNKNOWN
+orionlibs.google-maps-wrapper.transportation.type=DRIVING
+##DRIVING, WALKING, BICYCLING, TRANSIT, UNKNOWN
+orionlibs.google-maps-wrapper.distance.unit=IMPERIAL
+#METRIC

@@ -7,8 +7,6 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.TravelMode;
-import com.google.maps.model.Unit;
 import io.github.orionlibs.google_maps_wrapper.config.ConfigurationService;
 import java.io.IOException;
 import java.util.Optional;
@@ -27,13 +25,11 @@ class DistanceAndTravelDurationCalculator extends AGoogleMapsTask
         }
         String apiKey = config.getProp("orionlibs.google-maps-wrapper.google.maps.api.key");
         Utils.validateAPIKey(apiKey);
-        long connectionTimeout = Utils.validateConnectionTimeout(config);
-        int retries = Utils.validateRetries(config);
         Builder requestBuilder = new Builder();
         requestBuilder.apiKey(apiKey);
-        requestBuilder.connectTimeout(connectionTimeout, TimeUnit.SECONDS);
+        requestBuilder.connectTimeout(Utils.validateConnectionTimeout(config), TimeUnit.SECONDS);
         requestBuilder.readTimeout(15, TimeUnit.SECONDS);
-        requestBuilder.maxRetries(retries);
+        requestBuilder.maxRetries(Utils.validateRetries(config));
         GeoApiContext geoAPIContext = requestBuilder.build();
         try
         {
@@ -42,8 +38,8 @@ class DistanceAndTravelDurationCalculator extends AGoogleMapsTask
             request.destination(postcode2);
             request.optimizeWaypoints(false);
             request.origin(postcode1);
-            request.mode(TravelMode.DRIVING);
-            request.units(Unit.IMPERIAL);
+            request.mode(Utils.validateTransportationType(config));
+            request.units(Utils.validateDistanceUnit(config));
             float distance = Float.MAX_VALUE;
             long travelDurationInSeconds = 0L;
             DirectionsResult apiResponse = request.await();
@@ -84,6 +80,10 @@ class DistanceAndTravelDurationCalculator extends AGoogleMapsTask
             {
                 String apiKey = config.getProp("orionlibs.google-maps-wrapper.google.maps.api.key");
                 Utils.validateAPIKey(apiKey);
+                Utils.validateConnectionTimeout(config);
+                Utils.validateRetries(config);
+                Utils.validateTransportationType(config);
+                Utils.validateDistanceUnit(config);
                 return Optional.<DistanceAndTravelDuration>of(DistanceAndTravelDuration.builder()
                                 .distance(24.795f)
                                 .travelDurationInSeconds(6400)
