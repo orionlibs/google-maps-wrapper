@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.orionlibs</groupId>
     <artifactId>google-maps-wrapper</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>Orion Google Maps Wrapper</name>
     <description>Java library providing dev-friendly way to access certain Google Maps API endpoints</description>
     <url>https://github.com/orionlibs/google-maps-wrapper</url>
