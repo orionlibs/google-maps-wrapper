@@ -1,6 +1,6 @@
 package io.github.orionlibs.google_maps_wrapper;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.orionlibs.google_maps_wrapper.log.ListLogHandler;
 import org.junit.jupiter.api.AfterEach;
@@ -8,33 +8,37 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
-@TestInstance(Lifecycle.PER_CLASS)
-//@Execution(ExecutionMode.CONCURRENT)
-public class NewClassTest
+@TestInstance(Lifecycle.PER_METHOD)
+@Execution(ExecutionMode.CONCURRENT)
+public class GoogleMapsServiceTest
 {
     private ListLogHandler listLogHandler;
+    private GoogleMapsService googleMapsService;
 
 
     @BeforeEach
     void setUp()
     {
         listLogHandler = new ListLogHandler();
-        NewClass.addLogHandler(listLogHandler);
+        GoogleMapsService.addLogHandler(listLogHandler);
     }
 
 
     @AfterEach
     public void teardown()
     {
-        NewClass.removeLogHandler(listLogHandler);
+        GoogleMapsService.removeLogHandler(listLogHandler);
     }
 
 
     @Test
-    void test_method1() throws Exception
+    void test_getFormattedPostcode() throws Exception
     {
-        assertTrue(true);
+        assertEquals("SW1A 1AA", googleMapsService.getFormattedPostcode("SW1A1AA"));
+        //assertTrue(true);
         /*ConfigurationService.updateProp("orionlibs.prop", "false");
         mockMvc.perform(get("/")).andExpect(status().isOk());
         assertTrue(listLogHandler.getLogRecords().stream()

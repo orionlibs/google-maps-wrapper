@@ -9,20 +9,26 @@ import java.util.logging.Logger;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class NewClass
+public class GoogleMapsService
 {
     private final static Logger log;
     private OrionConfiguration featureConfiguration;
 
     static
     {
-        log = Logger.getLogger(NewClass.class.getName());
+        log = Logger.getLogger(GoogleMapsService.class.getName());
     }
 
-    public NewClass(final Properties customConfig) throws IOException
+    public GoogleMapsService(final Properties customConfig) throws IOException
     {
         this.featureConfiguration = OrionConfiguration.loadFeatureConfiguration(customConfig);
         ConfigurationService.registerConfiguration(featureConfiguration);
+    }
+
+
+    public String getFormattedPostcode(String postcode)
+    {
+        return new GetFormattedPostcodeTask().run(postcode);
     }
 
 
