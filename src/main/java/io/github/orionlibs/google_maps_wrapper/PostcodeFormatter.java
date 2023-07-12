@@ -15,6 +15,7 @@ import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
 import io.github.orionlibs.google_maps_wrapper.config.ConfigurationService;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class PostcodeFormatter extends AGoogleMapsTask
@@ -22,10 +23,15 @@ public class PostcodeFormatter extends AGoogleMapsTask
     private int numberOfRetries = 0;
 
 
-    public String run(String postcode)
+    public Optional<String> run(String postcode) throws MissingApiKeyException
     {
+        String apiKey = ConfigurationService.getProp("orionlibs.google-maps-wrapper.google.maps.api.key");
+        if(apiKey == null || apiKey.isEmpty())
+        {
+            throw new MissingApiKeyException();
+        }
         Builder requestBuilder = new Builder();
-        requestBuilder.apiKey(ConfigurationService.getProp("orionlibs.google-maps-wrapper.google.maps.api.key"));
+        requestBuilder.apiKey(apiKey);
         requestBuilder.connectTimeout(15, TimeUnit.SECONDS);
         requestBuilder.readTimeout(15, TimeUnit.SECONDS);
         requestBuilder.maxRetries(2);
@@ -104,7 +110,7 @@ public class PostcodeFormatter extends AGoogleMapsTask
                     String addressComponentWithoutSpace = addressComponent.shortName.replace(" ", "");
                     if(addressComponentWithoutSpace.equalsIgnoreCase(postcodeWithoutSpace))
                     {
-                        return addressComponent.shortName;
+                        return Optional.<String>of(addressComponent.shortName);
                     }
                 }
             }
@@ -152,14 +158,14 @@ public class PostcodeFormatter extends AGoogleMapsTask
         else
         {
             closeRequest(geoAPIContext);
-            return null;
+            return Optional.<String>empty();
         }
         closeRequest(geoAPIContext);
-        return null;
+        return Optional.<String>empty();
     }
 
 
-    private String processAPICall(String postcode, GeoApiContext geoAPIContext)
+    private Optional<String> processAPICall(String postcode, GeoApiContext geoAPIContext) throws MissingApiKeyException
     {
         closeRequest(geoAPIContext);
         if(numberOfRetries == 0)
@@ -172,12 +178,12 @@ public class PostcodeFormatter extends AGoogleMapsTask
             }
             catch(InterruptedException e)
             {
-                return null;
+                return Optional.<String>empty();
             }
         }
         else
         {
-            return null;
+            return Optional.<String>empty();
         }
     }
 
@@ -185,15 +191,15 @@ public class PostcodeFormatter extends AGoogleMapsTask
     public static class FakePostcodeFormatter extends PostcodeFormatter
     {
         @Override
-        public String run(String postcode)
+        public Optional<String> run(String postcode)
         {
             if(postcode == null || postcode.isEmpty())
             {
-                return null;
+                return Optional.<String>empty();
             }
             else
             {
-                return postcode.substring(0, postcode.length() - 3).toUpperCase();
+                return Optional.<String>of(postcode.substring(0, postcode.length() - 3).toUpperCase());
             }
         }
     }

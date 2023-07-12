@@ -3,6 +3,7 @@ package io.github.orionlibs.google_maps_wrapper;
 import io.github.orionlibs.google_maps_wrapper.config.ConfigurationService;
 import io.github.orionlibs.google_maps_wrapper.config.OrionConfiguration;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -43,7 +44,7 @@ public class GoogleMapsService
     }
 
 
-    public String formatPostcode(String postcode)
+    public Optional<String> formatPostcode(String postcode) throws MissingApiKeyException
     {
         return postcodeFormatter.run(postcode);
     }
