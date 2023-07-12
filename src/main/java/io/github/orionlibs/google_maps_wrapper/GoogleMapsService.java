@@ -6,20 +6,13 @@ import io.github.orionlibs.google_maps_wrapper.config.OrionConfiguration;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.logging.Handler;
-import java.util.logging.Logger;
 
 public class GoogleMapsService
 {
-    private final static Logger log;
     private PostcodeFormatter postcodeFormatter;
     private DistanceAndTravelDurationCalculator distanceAndTravelDurationCalculator;
     private ConfigurationService config;
 
-    static
-    {
-        log = Logger.getLogger(GoogleMapsService.class.getName());
-    }
 
     GoogleMapsService(PostcodeFormatter postcodeFormatter) throws IOException
     {
@@ -72,18 +65,6 @@ public class GoogleMapsService
     public Optional<DistanceAndTravelDuration> getDistanceAndTravelDuration(String postcode1, String postcode2) throws MissingApiKeyException, IOException, InterruptedException, ApiException
     {
         return distanceAndTravelDurationCalculator.run(config, postcode1, postcode2);
-    }
-
-
-    static void addLogHandler(Handler handler)
-    {
-        log.addHandler(handler);
-    }
-
-
-    static void removeLogHandler(Handler handler)
-    {
-        log.removeHandler(handler);
     }
 
 
