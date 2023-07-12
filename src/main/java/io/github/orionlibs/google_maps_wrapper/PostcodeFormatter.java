@@ -13,10 +13,11 @@ import com.google.maps.model.AddressComponent;
 import com.google.maps.model.FindPlaceFromText;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResult;
+import io.github.orionlibs.google_maps_wrapper.config.ConfigurationService;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class GetFormattedPostcodeTask extends AGoogleMapsTask
+public class PostcodeFormatter extends AGoogleMapsTask
 {
     private int numberOfRetries = 0;
 
@@ -24,30 +25,25 @@ public class GetFormattedPostcodeTask extends AGoogleMapsTask
     public String run(String postcode)
     {
         Builder requestBuilder = new Builder();
-        requestBuilder.apiKey(InMemoryConfigurationService.getProp("google.maps.api.key"));
+        requestBuilder.apiKey(ConfigurationService.getProp("orionlibs.google-maps-wrapper.google.maps.api.key"));
         requestBuilder.connectTimeout(15, TimeUnit.SECONDS);
         requestBuilder.readTimeout(15, TimeUnit.SECONDS);
         requestBuilder.maxRetries(2);
         GeoApiContext geoAPIContext = requestBuilder.build();
         String placeIDOfPostcode = "";
         FindPlaceFromTextRequest placesAPIRequest = PlacesApi.findPlaceFromText(geoAPIContext, postcode, InputType.TEXT_QUERY);
-
         try
         {
             FindPlaceFromText response = placesAPIRequest.await();
             PlacesSearchResult[] results = response.candidates;
-
             if(results != null && results.length > 0)
             {
-
                 for(PlacesSearchResult result : results)
                 {
                     placeIDOfPostcode = result.placeId;
                     break;
                 }
-
             }
-
         }
         catch(InvalidRequestException e)
         {
@@ -94,29 +90,23 @@ public class GetFormattedPostcodeTask extends AGoogleMapsTask
                             e);*/
             return processAPICall(postcode, geoAPIContext);
         }
-
         if(placeIDOfPostcode != null && !placeIDOfPostcode.isEmpty())
         {
             PlaceDetailsRequest request = new PlaceDetailsRequest(geoAPIContext);
             request = request.placeId(placeIDOfPostcode);
             request = request.fields(FieldMask.ADDRESS_COMPONENT);
-
             try
             {
                 PlaceDetails response = request.await();
                 String postcodeWithoutSpace = postcode.replace(" ", "");
-
                 for(AddressComponent addressComponent : response.addressComponents)
                 {
                     String addressComponentWithoutSpace = addressComponent.shortName.replace(" ", "");
-
                     if(addressComponentWithoutSpace.equalsIgnoreCase(postcodeWithoutSpace))
                     {
                         return addressComponent.shortName;
                     }
-
                 }
-
             }
             catch(InvalidRequestException e)
             {
@@ -158,14 +148,12 @@ public class GetFormattedPostcodeTask extends AGoogleMapsTask
             {
                 closeRequest(geoAPIContext);
             }
-
         }
         else
         {
             closeRequest(geoAPIContext);
             return null;
         }
-
         closeRequest(geoAPIContext);
         return null;
     }
@@ -174,10 +162,8 @@ public class GetFormattedPostcodeTask extends AGoogleMapsTask
     private String processAPICall(String postcode, GeoApiContext geoAPIContext)
     {
         closeRequest(geoAPIContext);
-
         if(numberOfRetries == 0)
         {
-
             try
             {
                 Thread.sleep(3000);
@@ -188,12 +174,27 @@ public class GetFormattedPostcodeTask extends AGoogleMapsTask
             {
                 return null;
             }
-
         }
         else
         {
             return null;
         }
+    }
 
+
+    public static class FakePostcodeFormatter extends PostcodeFormatter
+    {
+        @Override
+        public String run(String postcode)
+        {
+            if(postcode == null || postcode.isEmpty())
+            {
+                return null;
+            }
+            else
+            {
+                return postcode.substring(0, postcode.length() - 3).toUpperCase();
+            }
+        }
     }
 }

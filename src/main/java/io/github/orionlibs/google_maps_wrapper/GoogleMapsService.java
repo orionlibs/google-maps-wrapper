@@ -6,29 +6,46 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 public class GoogleMapsService
 {
     private final static Logger log;
-    private OrionConfiguration featureConfiguration;
+    private PostcodeFormatter postcodeFormatter;
 
     static
     {
         log = Logger.getLogger(GoogleMapsService.class.getName());
     }
 
-    public GoogleMapsService(final Properties customConfig) throws IOException
+    GoogleMapsService(PostcodeFormatter postcodeFormatter) throws IOException
     {
-        this.featureConfiguration = OrionConfiguration.loadFeatureConfiguration(customConfig);
-        ConfigurationService.registerConfiguration(featureConfiguration);
+        this();
+        this.postcodeFormatter = postcodeFormatter;
     }
 
 
-    public String getFormattedPostcode(String postcode)
+    public GoogleMapsService() throws IOException
     {
-        return new GetFormattedPostcodeTask().run(postcode);
+        ConfigurationService.registerConfiguration(OrionConfiguration.loadFeatureConfiguration(null));
+    }
+
+
+    public GoogleMapsService(final Properties customConfig) throws IOException
+    {
+        ConfigurationService.registerConfiguration(OrionConfiguration.loadFeatureConfiguration(customConfig));
+    }
+
+
+    GoogleMapsService(final Properties customConfig, PostcodeFormatter postcodeFormatter) throws IOException
+    {
+        this(customConfig);
+        this.postcodeFormatter = postcodeFormatter;
+    }
+
+
+    public String formatPostcode(String postcode)
+    {
+        return postcodeFormatter.run(postcode);
     }
 
 
@@ -41,11 +58,5 @@ public class GoogleMapsService
     static void removeLogHandler(Handler handler)
     {
         log.removeHandler(handler);
-    }
-
-
-    public static void test()
-    {
-        log.info("hello world");
     }
 }

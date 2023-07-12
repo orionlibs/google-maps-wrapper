@@ -3,6 +3,7 @@ package io.github.orionlibs.google_maps_wrapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.orionlibs.google_maps_wrapper.log.ListLogHandler;
+import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,10 +21,11 @@ public class GoogleMapsServiceTest
 
 
     @BeforeEach
-    void setUp()
+    void setUp() throws IOException
     {
         listLogHandler = new ListLogHandler();
         GoogleMapsService.addLogHandler(listLogHandler);
+        googleMapsService = new GoogleMapsService(new PostcodeFormatter.FakePostcodeFormatter());
     }
 
 
@@ -35,14 +37,9 @@ public class GoogleMapsServiceTest
 
 
     @Test
-    void test_getFormattedPostcode() throws Exception
+    void test_formatPostcode() throws Exception
     {
-        assertEquals("SW1A 1AA", googleMapsService.getFormattedPostcode("SW1A1AA"));
-        //assertTrue(true);
-        /*ConfigurationService.updateProp("orionlibs.prop", "false");
-        mockMvc.perform(get("/")).andExpect(status().isOk());
-        assertTrue(listLogHandler.getLogRecords().stream()
-                        .anyMatch(record -> record.getMessage().contains("hello world")));
-        ConfigurationService.updateProp("orionlibs.prop", "true");*/
+        assertEquals("SW1A", googleMapsService.formatPostcode("sW1a1Aa"));
+        assertEquals("W6", googleMapsService.formatPostcode("w69hh"));
     }
 }
