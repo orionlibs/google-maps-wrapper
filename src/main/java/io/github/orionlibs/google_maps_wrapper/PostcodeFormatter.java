@@ -8,7 +8,6 @@ import com.google.maps.PlaceDetailsRequest;
 import com.google.maps.PlaceDetailsRequest.FieldMask;
 import com.google.maps.PlacesApi;
 import com.google.maps.errors.ApiException;
-import com.google.maps.errors.InvalidRequestException;
 import com.google.maps.model.AddressComponent;
 import com.google.maps.model.FindPlaceFromText;
 import com.google.maps.model.PlaceDetails;
@@ -18,28 +17,31 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-public class PostcodeFormatter extends AGoogleMapsTask
+class PostcodeFormatter extends AGoogleMapsTask
 {
     private int numberOfRetries = 0;
 
 
-    public Optional<String> run(String postcode) throws MissingApiKeyException
+    Optional<String> run(ConfigurationService config, String postcode) throws MissingApiKeyException, IOException, InterruptedException, ApiException
     {
-        String apiKey = ConfigurationService.getProp("orionlibs.google-maps-wrapper.google.maps.api.key");
-        if(apiKey == null || apiKey.isEmpty())
+        if(postcode == null || postcode.isEmpty())
         {
-            throw new MissingApiKeyException();
+            return Optional.<String>empty();
         }
+        String apiKey = config.getProp("orionlibs.google-maps-wrapper.google.maps.api.key");
+        Utils.validateAPIKey(apiKey);
+        long connectionTimeout = Utils.validateConnectionTimeout(config);
+        int retries = Utils.validateRetries(config);
         Builder requestBuilder = new Builder();
         requestBuilder.apiKey(apiKey);
-        requestBuilder.connectTimeout(15, TimeUnit.SECONDS);
+        requestBuilder.connectTimeout(connectionTimeout, TimeUnit.SECONDS);
         requestBuilder.readTimeout(15, TimeUnit.SECONDS);
-        requestBuilder.maxRetries(2);
+        requestBuilder.maxRetries(retries);
         GeoApiContext geoAPIContext = requestBuilder.build();
-        String placeIDOfPostcode = "";
-        FindPlaceFromTextRequest placesAPIRequest = PlacesApi.findPlaceFromText(geoAPIContext, postcode, InputType.TEXT_QUERY);
         try
         {
+            String placeIDOfPostcode = "";
+            FindPlaceFromTextRequest placesAPIRequest = PlacesApi.findPlaceFromText(geoAPIContext, postcode, InputType.TEXT_QUERY);
             FindPlaceFromText response = placesAPIRequest.await();
             PlacesSearchResult[] results = response.candidates;
             if(results != null && results.length > 0)
@@ -50,62 +52,14 @@ public class PostcodeFormatter extends AGoogleMapsTask
                     break;
                 }
             }
-        }
-        catch(InvalidRequestException e)
-        {
-            /*LoggingService.logError(null,
-                            null,
-                            GoogleMapsErrorType.GoogleMaps.get(),
-                            GoogleMapsErrors.ErrorWithGoogleMaps,
-                            e);*/
-            return processAPICall(postcode, geoAPIContext);
-        }
-        catch(ApiException e)
-        {
-            /*LoggingService.logError(null,
-                            null,
-                            GoogleMapsErrorType.GoogleMaps.get(),
-                            GoogleMapsErrors.ErrorWithGoogleMaps,
-                            e);*/
-            return processAPICall(postcode, geoAPIContext);
-        }
-        catch(InterruptedException e)
-        {
-            /*LoggingService.logError(null,
-                            null,
-                            GoogleMapsErrorType.GoogleMaps.get(),
-                            GoogleMapsErrors.ErrorWithGoogleMaps,
-                            e);*/
-            return processAPICall(postcode, geoAPIContext);
-        }
-        catch(IOException e)
-        {
-            /*LoggingService.logError(null,
-                            null,
-                            GoogleMapsErrorType.GoogleMaps.get(),
-                            GoogleMapsErrors.ErrorWithGoogleMaps,
-                            e);*/
-            return processAPICall(postcode, geoAPIContext);
-        }
-        catch(Exception e)
-        {
-            /*LoggingService.logError(null,
-                            null,
-                            GoogleMapsErrorType.GoogleMaps.get(),
-                            GoogleMapsErrors.ErrorWithGoogleMaps,
-                            e);*/
-            return processAPICall(postcode, geoAPIContext);
-        }
-        if(placeIDOfPostcode != null && !placeIDOfPostcode.isEmpty())
-        {
-            PlaceDetailsRequest request = new PlaceDetailsRequest(geoAPIContext);
-            request = request.placeId(placeIDOfPostcode);
-            request = request.fields(FieldMask.ADDRESS_COMPONENT);
-            try
+            if(placeIDOfPostcode != null && !placeIDOfPostcode.isEmpty())
             {
-                PlaceDetails response = request.await();
+                PlaceDetailsRequest request = new PlaceDetailsRequest(geoAPIContext);
+                request = request.placeId(placeIDOfPostcode);
+                request = request.fields(FieldMask.ADDRESS_COMPONENT);
+                PlaceDetails apiResponse = request.await();
                 String postcodeWithoutSpace = postcode.replace(" ", "");
-                for(AddressComponent addressComponent : response.addressComponents)
+                for(AddressComponent addressComponent : apiResponse.addressComponents)
                 {
                     String addressComponentWithoutSpace = addressComponent.shortName.replace(" ", "");
                     if(addressComponentWithoutSpace.equalsIgnoreCase(postcodeWithoutSpace))
@@ -114,84 +68,23 @@ public class PostcodeFormatter extends AGoogleMapsTask
                     }
                 }
             }
-            catch(InvalidRequestException e)
-            {
-                /*LoggingService.logError(null,
-                                null,
-                                GoogleMapsErrorType.GoogleMaps.get(),
-                                GoogleMapsErrors.ErrorWithGoogleMaps,
-                                e);*/
-                return processAPICall(postcode, geoAPIContext);
-            }
-            catch(ApiException e)
-            {
-                /*LoggingService.logError(null,
-                                null,
-                                GoogleMapsErrorType.GoogleMaps.get(),
-                                GoogleMapsErrors.ErrorWithGoogleMaps,
-                                e);*/
-                return processAPICall(postcode, geoAPIContext);
-            }
-            catch(InterruptedException e)
-            {
-                /*LoggingService.logError(null,
-                                null,
-                                GoogleMapsErrorType.GoogleMaps.get(),
-                                GoogleMapsErrors.ErrorWithGoogleMaps,
-                                e);*/
-                return processAPICall(postcode, geoAPIContext);
-            }
-            catch(IOException e)
-            {
-                /*LoggingService.logError(null,
-                                null,
-                                GoogleMapsErrorType.GoogleMaps.get(),
-                                GoogleMapsErrors.ErrorWithGoogleMaps,
-                                e);*/
-                return processAPICall(postcode, geoAPIContext);
-            }
-            finally
-            {
-                closeRequest(geoAPIContext);
-            }
-        }
-        else
-        {
-            closeRequest(geoAPIContext);
-            return Optional.<String>empty();
-        }
-        closeRequest(geoAPIContext);
-        return Optional.<String>empty();
-    }
-
-
-    private Optional<String> processAPICall(String postcode, GeoApiContext geoAPIContext) throws MissingApiKeyException
-    {
-        closeRequest(geoAPIContext);
-        if(numberOfRetries == 0)
-        {
-            try
-            {
-                Thread.sleep(3000);
-                numberOfRetries = 1;
-                return run(postcode);
-            }
-            catch(InterruptedException e)
+            else
             {
                 return Optional.<String>empty();
             }
         }
-        else
+        finally
         {
-            return Optional.<String>empty();
+            closeRequest(geoAPIContext);
         }
+        return Optional.<String>empty();
     }
 
 
     public static class FakePostcodeFormatter extends PostcodeFormatter
     {
         @Override
-        public Optional<String> run(String postcode)
+        public Optional<String> run(ConfigurationService config, String postcode) throws MissingApiKeyException
         {
             if(postcode == null || postcode.isEmpty())
             {
@@ -199,6 +92,8 @@ public class PostcodeFormatter extends AGoogleMapsTask
             }
             else
             {
+                String apiKey = config.getProp("orionlibs.google-maps-wrapper.google.maps.api.key");
+                Utils.validateAPIKey(apiKey);
                 return Optional.<String>of(postcode.substring(0, postcode.length() - 3).toUpperCase());
             }
         }

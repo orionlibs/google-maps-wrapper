@@ -12,7 +12,7 @@ public class ConfigurationService
      * stores a config object
      * @param configuration
      */
-    public static void registerConfiguration(OrionConfiguration configuration)
+    public void registerConfiguration(OrionConfiguration configuration)
     {
         configurationRegistry = configuration;
     }
@@ -23,20 +23,31 @@ public class ConfigurationService
      * @param key
      * @return
      */
-    public static String getProp(String key)
+    public String getProp(String key)
     {
         return configurationRegistry.getProperty(key);
     }
 
 
     /**
-     * retrieves the value associated with the provided key casted to a boolean
+     * retrieves the value associated with the provided key casted to a int
      * @param key
      * @return
      */
-    public static Boolean getBooleanProp(String key)
+    public Integer getIntegerProp(String key)
     {
-        return Boolean.parseBoolean(configurationRegistry.getProperty(key));
+        return Integer.parseInt(configurationRegistry.getProperty(key));
+    }
+
+
+    /**
+     * retrieves the value associated with the provided key casted to a long
+     * @param key
+     * @return
+     */
+    public Long getLongProp(String key)
+    {
+        return Long.parseLong(configurationRegistry.getProperty(key));
     }
 
 
@@ -45,7 +56,7 @@ public class ConfigurationService
      * @param key
      * @param value
      */
-    public static void updateProp(String key, String value)
+    public void updateProp(String key, String value)
     {
         configurationRegistry.updateProp(key, value);
     }

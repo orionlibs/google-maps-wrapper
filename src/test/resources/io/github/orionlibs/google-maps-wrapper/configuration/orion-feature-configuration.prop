@@ -1,1 +1,3 @@
 orionlibs.google-maps-wrapper.google.maps.api.key=OrionFakeAPIKey
+orionlibs.google-maps-wrapper.connection.timeout.in.seconds=15
+orionlibs.google-maps-wrapper.connection.retries=2
