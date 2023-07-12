@@ -1,4 +1,4 @@
-package io.github.orionlibs.project_name.config;
+package io.github.orionlibs.google_maps_wrapper.config;
 
 /**
  * provides access to the plugin's config

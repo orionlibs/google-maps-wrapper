@@ -1,4 +1,4 @@
-package io.github.orionlibs.project_name.config;
+package io.github.orionlibs.google_maps_wrapper.config;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,7 +16,7 @@ public class OrionConfiguration extends Properties
     /**
      * The location of the configuration file that has configuration for the features of this plugin.
      */
-    public static final String FEATURE_CONFIGURATION_FILE = "/io/github/orionlibs/project-name/configuration/orion-feature-configuration.prop";
+    public static final String FEATURE_CONFIGURATION_FILE = "/io/github/orionlibs/google-maps-wrapper/configuration/orion-feature-configuration.prop";
 
 
     public static OrionConfiguration loadFeatureConfiguration(Properties customConfig) throws IOException
@@ -30,7 +30,7 @@ public class OrionConfiguration extends Properties
         }
         catch(IOException e)
         {
-            throw new IOException("Could not setup feature configuration for Orion project-name: ", e);
+            throw new IOException("Could not setup feature configuration for Orion Google Maps Wrapper: ", e);
         }
     }
 

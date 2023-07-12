@@ -1,7 +1,7 @@
-package io.github.orionlibs.project_name;
+package io.github.orionlibs.google_maps_wrapper;
 
-import io.github.orionlibs.project_name.config.ConfigurationService;
-import io.github.orionlibs.project_name.config.OrionConfiguration;
+import io.github.orionlibs.google_maps_wrapper.config.ConfigurationService;
+import io.github.orionlibs.google_maps_wrapper.config.OrionConfiguration;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Handler;
