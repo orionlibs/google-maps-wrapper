@@ -1,6 +1,7 @@
 package io.github.orionlibs.google_maps_wrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import io.github.orionlibs.google_maps_wrapper.log.ListLogHandler;
 import java.io.IOException;
@@ -39,7 +40,9 @@ public class GoogleMapsServiceTest
     @Test
     void test_formatPostcode() throws Exception
     {
-        assertEquals("SW1A", googleMapsService.formatPostcode("sW1a1Aa"));
-        assertEquals("W6", googleMapsService.formatPostcode("w69hh"));
+        assertFalse(googleMapsService.formatPostcode(null).isPresent());
+        assertFalse(googleMapsService.formatPostcode("").isPresent());
+        assertEquals("SW1A", googleMapsService.formatPostcode("sW1a1Aa").get());
+        assertEquals("W6", googleMapsService.formatPostcode("w69hh").get());
     }
 }
