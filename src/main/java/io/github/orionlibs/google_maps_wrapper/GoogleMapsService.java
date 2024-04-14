@@ -35,20 +35,6 @@ public class GoogleMapsService
     }
 
 
-    GoogleMapsService(final Properties customConfig, PostcodeFormatter postcodeFormatter) throws IOException
-    {
-        this(customConfig);
-        this.postcodeFormatter = postcodeFormatter;
-    }
-
-
-    GoogleMapsService(final Properties customConfig, DistanceAndTravelDurationCalculator distanceAndTravelDurationCalculator) throws IOException
-    {
-        this(customConfig);
-        this.distanceAndTravelDurationCalculator = distanceAndTravelDurationCalculator;
-    }
-
-
     GoogleMapsService(DistanceAndTravelDurationCalculator distanceAndTravelDurationCalculator) throws IOException
     {
         this();

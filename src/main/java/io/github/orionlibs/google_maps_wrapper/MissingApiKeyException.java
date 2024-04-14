@@ -2,7 +2,7 @@ package io.github.orionlibs.google_maps_wrapper;
 
 public class MissingApiKeyException extends Exception
 {
-    private static final String DefaultErrorMessage = "There is no Google Maps API key. Please create the GoogleMapsService by passing a Properties customConfig object with your config.";
+    private static final String DefaultErrorMessage = "No Google Maps API key provided. Please instantiate GoogleMapsService by passing a Properties customConfig object with your config.";
 
 
     public MissingApiKeyException()
